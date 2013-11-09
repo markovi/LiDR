@@ -1,0 +1,66 @@
+<project name="LiDR" basedir=".">
+
+    <!-- Variables -->
+    <property name="lib.dir"    value="lib"/>
+    <property name="src.dir"    value="src"/>
+
+    <property name="build.dir"   value="build"/>
+    <property name="classes.dir" value="${build.dir}/classes"/>
+    <property name="jar.dir"     value="${build.dir}/jar"/>
+    <property name="doc.dir"     value="${build.dir}/doc"/>
+
+    <!-- Set the version here -->
+    <property name="version"    value="1.0" />
+    <property name="jar.name"    value="lidr-${version}-SANPSHOT.jar" />
+    <property name="jar.file"    value="${jar.dir}/${jar.name}" />
+
+	<path id="classpath">
+		<pathelement path="lib/commons-math-2.0.jar"/>
+	</path>
+	
+	<path id="sourcepath">
+		<pathelement path="${src.dir}"/>
+	</path>
+
+    <!-- Targets -->
+    <target name="clean">
+        <delete dir="build"/>
+    </target>
+
+    <target name="compile">
+        <mkdir dir="${classes.dir}"/>
+    	
+        <javac srcdir="${src.dir}"
+          	destdir="${classes.dir}"
+           	debug="on"
+           	classpathref="classpath"
+        	failonerror="false"
+        	includeantruntime="false"
+        	excludes="ch/usi/inf/lidr/tests/**" />
+    </target>
+
+    <target name="jar">
+    	<ant target="compile" />
+        <mkdir dir="${jar.dir}"/>
+        <jar destfile="${jar.file}"
+            basedir="${classes.dir}" />
+    </target>
+
+    <target name="doc">
+        <javadoc packagenames="ch.usi.inf.lidr.*"
+            sourcepath="${src.dir}"
+            excludepackagenames="ch.usi.inf.lidr.tests.*"
+            defaultexcludes="yes"
+            destdir="${doc.dir}"
+            author="true"
+            version="true"
+			use="true"
+			classpathref="classpath"
+        	access="private">
+        	
+        	<link href="http://docs.oracle.com/javase/6/docs/api/"/>
+			<link href="http://junit.sourceforge.net/javadoc/"/>
+        </javadoc>
+    </target>
+
+</project>
