@@ -139,12 +139,12 @@ public final class SAFE implements ResultsMerging {
 	 * 
 	 * <p>
 	 * <b>IMPORTANT:</b> the list of sampled documents must be set for each query
-	 * using {@link #setSampledDocs(List)} before running normalization.
+	 * using {@link #setSampleDocuments(List)} before running normalization.
 	 * </p>
 	 * 
-	 * @see #setSampledDocs(List)
+	 * @see #setSampleDocuments(List)
 	 */
-	private List<ScoredEntity<Object>> sampledDocs = new ArrayList<ScoredEntity<Object>>();
+	private List<ScoredEntity<Object>> sampleScoredDocs = new ArrayList<ScoredEntity<Object>>();
 	
 	/**
 	 * Sets the rank ratio.
@@ -195,27 +195,27 @@ public final class SAFE implements ResultsMerging {
 	 * before running normalization.
 	 * </p>
 	 * 
-	 * @param sampledDocs The ranked list of sample documents.
+	 * @param sampleScoredDocs The ranked list of sample documents.
 	 * 
 	 * @throws NullPointerException
 	 * 		if <code>sampledDocs</code> is <code>null</code>.
 	 * 
-	 * @see #sampledDocs
+	 * @see #sampleScoredDocs
 	 */
-	public void setSampledDocs(List<ScoredEntity<Object>> sampledDocs) {
-		if (sampledDocs == null) {
-			throw new NullPointerException("The list of sample documents is null.");
+	public void setSampleDocuments(List<ScoredEntity<Object>> sampleScoredDocs) {
+		if (sampleScoredDocs == null) {
+			throw new NullPointerException("The list of sample scored documents is null.");
 		}
 		
-		this.sampledDocs = sampledDocs;
+		this.sampleScoredDocs = sampleScoredDocs;
 	}
 
 	/**
-	 * <b>IMPORTANT:</b> {@link #setSampledDocs(List)} must
+	 * <b>IMPORTANT:</b> {@link #setSampleDocuments(List)} must
 	 * and {@link #setRankRatio(double)} should be invoked before performing normalization.
 	 * 
 	 * @see ch.usi.inf.lidr.norm.ScoreNormalization#normalize(java.util.List)
-	 * @see #setSampledDocs(List)
+	 * @see #setSampleDocuments(List)
 	 * @see #setRankRatio(double)
 	 */
 	@Override
@@ -224,7 +224,7 @@ public final class SAFE implements ResultsMerging {
 			throw new NullPointerException("The list of scored documents is null.");
 		}
 		
-		Map<Integer, Double> rank2score = getRank2ScoreMapping(sampledDocs, unnormScoredDocs);
+		Map<Integer, Double> rank2score = getRank2ScoreMapping(sampleScoredDocs, unnormScoredDocs);
 		Regression[] regressions = getRegressions(rank2score);
 		Regression hybrid = getBestFitRegression(regressions);
 		
@@ -402,14 +402,14 @@ public final class SAFE implements ResultsMerging {
 	}
 
 	/**
-	 * Resets {@link #rankRatio} and {@link #sampledDocs}.
+	 * Resets {@link #rankRatio} and {@link #sampleScoredDocs}.
 	 * 
 	 * @see #setRankRatio(double)
-	 * @see #setSampledDocs(List)
+	 * @see #setSampleDocuments(List)
 	 */
 	private void reset() {
 		rankRatio = 1;
-		sampledDocs = new ArrayList<ScoredEntity<Object>>();
+		sampleScoredDocs = new ArrayList<ScoredEntity<Object>>();
 	}
 	
 }
