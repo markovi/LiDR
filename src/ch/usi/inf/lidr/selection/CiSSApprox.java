@@ -24,7 +24,7 @@ public class CiSSApprox extends CiSS {
 	 * @see ch.usi.inf.lidr.selection.CiSS#getResourceScore(ch.usi.inf.lidr.selection.Resource, java.util.List)
 	 */
 	@Override
-	protected double getResourceScore(Resource resource, List<ScoredEntity<Object>> documents) {
+	protected <T> double getResourceScore(Resource resource, List<ScoredEntity<T>> documents) {
 		if (documents.size() == 0) return 0;
 		
 		double topScore = documents.get(0).getScore();

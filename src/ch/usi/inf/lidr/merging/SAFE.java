@@ -22,13 +22,19 @@ import ch.usi.inf.lidr.utils.ScoredEntity;
  * Then this function is applied to source-specific ranks (<code>1</code>, <code>2</code>, ...)
  * to obtain corresponding normalized scores.
  * 
+ * <p>
+ * <b>IMPORTANT:</b> For this class to function correctly,
+ * its type <code>U</code>
+ * should be the same as the type <code>T</code> of the {@link #normalize(List)} method.
+ * </p>
+ * 
  * @author Ilya Markov
  * 
  * @see "Robust result merging using sample-based score estimates",
  * 		Milad Shokouhi and Justin Zobel.
  * 		<i>ACM Transactions on Information Systems</i>, 27:3, pages 1-29, 2009.
  */
-public final class SAFE implements ResultsMerging {
+public final class SAFE<U> implements ResultsMerging {
 	
 	/**
 	 * An abstract class that performs regression
@@ -144,7 +150,7 @@ public final class SAFE implements ResultsMerging {
 	 * 
 	 * @see #setSampleDocuments(List)
 	 */
-	private List<ScoredEntity<Object>> sampleScoredDocs = new ArrayList<ScoredEntity<Object>>();
+	private List<ScoredEntity<U>> sampleScoredDocs = new ArrayList<ScoredEntity<U>>();
 	
 	/**
 	 * Sets the rank ratio.
@@ -202,7 +208,7 @@ public final class SAFE implements ResultsMerging {
 	 * 
 	 * @see #sampleScoredDocs
 	 */
-	public void setSampleDocuments(List<ScoredEntity<Object>> sampleScoredDocs) {
+	public void setSampleDocuments(List<ScoredEntity<U>> sampleScoredDocs) {
 		if (sampleScoredDocs == null) {
 			throw new NullPointerException("The list of sample scored documents is null.");
 		}
@@ -214,12 +220,12 @@ public final class SAFE implements ResultsMerging {
 	 * <b>IMPORTANT:</b> {@link #setSampleDocuments(List)} must
 	 * and {@link #setRankRatio(double)} should be invoked before performing normalization.
 	 * 
-	 * @see ch.usi.inf.lidr.norm.ScoreNormalization#normalize(java.util.List)
+	 * @see ch.usi.inf.lidr.norm.ScoreNormalization#normalize(List<ScoredEntity<T>>)
 	 * @see #setSampleDocuments(List)
 	 * @see #setRankRatio(double)
 	 */
 	@Override
-	public List<ScoredEntity<Object>> normalize(List<ScoredEntity<Object>> unnormScoredDocs) {
+	public <T> List<ScoredEntity<T>> normalize(List<ScoredEntity<T>> unnormScoredDocs) {
 		if (unnormScoredDocs == null) {
 			throw new NullPointerException("The list of scored documents is null.");
 		}
@@ -229,12 +235,12 @@ public final class SAFE implements ResultsMerging {
 		Regression hybrid = getBestFitRegression(regressions);
 		
 		if (hybrid.getN() < 3) {
-			return new ArrayList<ScoredEntity<Object>>();	// ???
+			return new ArrayList<ScoredEntity<T>>();	// ???
 		}
 		
-		List<ScoredEntity<Object>> normScoredDocs = new ArrayList<ScoredEntity<Object>>(unnormScoredDocs.size());
+		List<ScoredEntity<T>> normScoredDocs = new ArrayList<ScoredEntity<T>>(unnormScoredDocs.size());
 		for (int i = 0; i < unnormScoredDocs.size(); i++) {
-			normScoredDocs.add(new ScoredEntity<Object>(unnormScoredDocs.get(i).getEntity(), hybrid.predict(i + 1)));
+			normScoredDocs.add(new ScoredEntity<T>(unnormScoredDocs.get(i).getEntity(), hybrid.predict(i + 1)));
 		}
 		
 		reset();
@@ -248,10 +254,10 @@ public final class SAFE implements ResultsMerging {
 	 * If a document from <code>sampledDocs</code> appears
 	 * also in <code>scoredDocs</code> then its true rank is used.
 	 */
-	private Map<Integer, Double> getRank2ScoreMapping(List<ScoredEntity<Object>> sampledDocs, List<ScoredEntity<Object>> scoredDocs) {
+	private <T> Map<Integer, Double> getRank2ScoreMapping(List<ScoredEntity<U>> sampledDocs, List<ScoredEntity<T>> scoredDocs) {
 		Map<Integer, Double> rank2score = new HashMap<Integer, Double>();
 		
-		Map<Object, Integer> scoredDocRanks = getDoc2RankMap(scoredDocs);
+		Map<T, Integer> scoredDocRanks = getDoc2RankMap(scoredDocs);
 		int lastSeenIndex = getOverlapDocs(sampledDocs, scoredDocRanks, rank2score);
 		getNonoverlapDocs(sampledDocs, lastSeenIndex, scoredDocs.size(), rank2score);
 		
@@ -281,7 +287,7 @@ public final class SAFE implements ResultsMerging {
 	 * 
 	 * @return The index of the last overlapping sample document.
 	 */
-	private int getOverlapDocs(List<ScoredEntity<Object>> sampledDocs, Map<Object, Integer> scoredDocRanks,
+	private <T> int getOverlapDocs(List<ScoredEntity<U>> sampledDocs, Map<T, Integer> scoredDocRanks,
 			Map<Integer, Double> rank2score)
 	{
 		int lastSeenIndex = -1;
@@ -306,7 +312,7 @@ public final class SAFE implements ResultsMerging {
 	 * estimates its source-specific rank according to the following formula:
 	 * <code>r_c = offset + (r_s - 0.5) * rankRatio</code>.
 	 */
-	private void getNonoverlapDocs(List<ScoredEntity<Object>> sampledDocs, int lastSeenIndex, int offset,
+	private <T>  void getNonoverlapDocs(List<ScoredEntity<T>> sampledDocs, int lastSeenIndex, int offset,
 			Map<Integer, Double> rank2score)
 	{
 		for (int i = lastSeenIndex + 1; i < sampledDocs.size(); i++) {
@@ -321,8 +327,8 @@ public final class SAFE implements ResultsMerging {
 	 * Transforms <code>scoredDocs</code> into a mapping
 	 * between documents and their ranks.
 	 */
-	private Map<Object, Integer> getDoc2RankMap(List<ScoredEntity<Object>> scoredDocs) {
-		Map<Object, Integer> doc2rankMap = new HashMap<Object, Integer>();
+	private <T> Map<T, Integer> getDoc2RankMap(List<ScoredEntity<T>> scoredDocs) {
+		Map<T, Integer> doc2rankMap = new HashMap<T, Integer>();
 		for (int i = 0; i < scoredDocs.size(); i++) {
 			doc2rankMap.put(scoredDocs.get(i).getEntity(), i + 1);
 		}
@@ -409,7 +415,7 @@ public final class SAFE implements ResultsMerging {
 	 */
 	private void reset() {
 		rankRatio = 1;
-		sampleScoredDocs = new ArrayList<ScoredEntity<Object>>();
+		sampleScoredDocs = new ArrayList<ScoredEntity<U>>();
 	}
 	
 }

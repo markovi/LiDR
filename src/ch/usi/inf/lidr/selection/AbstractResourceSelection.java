@@ -115,11 +115,11 @@ public abstract class AbstractResourceSelection implements ResourceSelection {
 	}
 
 	/**
-	 * @see ch.usi.inf.lidr.selection.ResourceSelection#select(java.util.List, java.util.List)
+	 * @see ch.usi.inf.lidr.selection.ResourceSelection#select(List<ScoredEntity<T>>, java.util.List)
 	 */
 	@Override
-	public List<ScoredEntity<Resource>> select(
-			List<ScoredEntity<Object>> documents, List<Resource> resources)
+	public <T> List<ScoredEntity<Resource>> select(
+			List<ScoredEntity<T>> documents, List<Resource> resources)
 	{
 		if (documents == null) {
 			throw new NullPointerException("The list of scored documents is null.");
@@ -132,7 +132,7 @@ public abstract class AbstractResourceSelection implements ResourceSelection {
 					documents.size() + " != " + resources.size());
 		}
 
-		List<ScoredEntity<Object>> sortedDocuments = new ArrayList<ScoredEntity<Object>>();
+		List<ScoredEntity<T>> sortedDocuments = new ArrayList<ScoredEntity<T>>();
 		sortedDocuments.addAll(documents);
 		
 		List<Resource> sortedResources = new ArrayList<Resource>();
@@ -169,8 +169,8 @@ public abstract class AbstractResourceSelection implements ResourceSelection {
 	 * 
 	 * @return The mapping between resources and their scores.
 	 */
-	protected abstract Map<Resource, Double> getResourceScores(
-			List<ScoredEntity<Object>> documents, List<Resource> resources);
+	protected abstract <T> Map<Resource, Double> getResourceScores(
+			List<ScoredEntity<T>> documents, List<Resource> resources);
 	
 	/**
 	 * Checks if a given list of scored documents
@@ -184,7 +184,7 @@ public abstract class AbstractResourceSelection implements ResourceSelection {
 	 * 		is sorted descending with respect to document scores
 	 * 		and <code>false</code> otherwise.
 	 */
-	protected boolean checkSorting(List<ScoredEntity<Object>> documents) {
+	protected <T> boolean checkSorting(List<ScoredEntity<T>> documents) {
 		for (int i = 0; i < documents.size() - 1; i++) {
 			if (documents.get(i).getScore() < documents.get(i + 1).getScore()) {
 				return false;
@@ -208,7 +208,7 @@ public abstract class AbstractResourceSelection implements ResourceSelection {
 	 * 
 	 * @return The sample rank corresponding to the given complete rank.
 	 */
-	protected int getSampleRank(List<ScoredEntity<Object>> documents,
+	protected <T> int getSampleRank(List<ScoredEntity<T>> documents,
 			List<Resource> resources, int completeRank)
 	{
 		int rank = 0;
@@ -233,14 +233,14 @@ public abstract class AbstractResourceSelection implements ResourceSelection {
 	 * 
 	 * @return The mapping between resources and documents.
 	 */
-	protected Map<Resource, List<ScoredEntity<Object>>> getDocument2Resource(List<ScoredEntity<Object>> documents, List<Resource> resources) {
-		Map<Resource, List<ScoredEntity<Object>>> doc2res = new HashMap<Resource, List<ScoredEntity<Object>>>();
+	protected <T> Map<Resource, List<ScoredEntity<T>>> getDocument2Resource(List<ScoredEntity<T>> documents, List<Resource> resources) {
+		Map<Resource, List<ScoredEntity<T>>> doc2res = new HashMap<Resource, List<ScoredEntity<T>>>();
 		
 		for (int i = 0; i < documents.size(); i++) {
 			Resource resource = resources.get(i);
 			
-			List<ScoredEntity<Object>> resourceDocs = doc2res.get(resource) != null ?
-					doc2res.get(resource) : new ArrayList<ScoredEntity<Object>>();
+			List<ScoredEntity<T>> resourceDocs = doc2res.get(resource) != null ?
+					doc2res.get(resource) : new ArrayList<ScoredEntity<T>>();
 			resourceDocs.add(documents.get(i));
 			
 			doc2res.put(resource, resourceDocs);
@@ -256,7 +256,7 @@ public abstract class AbstractResourceSelection implements ResourceSelection {
 	 * @param documents The list of scored documents to sort.
 	 * @param resources The list of corresponding resources.
 	 */
-	protected void sort(List<ScoredEntity<Object>> documents, List<Resource> resources) {
+	protected <T> void sort(List<ScoredEntity<T>> documents, List<Resource> resources) {
 		sort(documents, resources, documents.size());
 	}
 	
@@ -268,7 +268,7 @@ public abstract class AbstractResourceSelection implements ResourceSelection {
 	 * @param resources The list of corresponding resources.
 	 * @param top Indicates how many documents should be sorted.
 	 */
-	protected void sort(List<ScoredEntity<Object>> documents, List<Resource> resources, int top) {
+	protected <T> void sort(List<ScoredEntity<T>> documents, List<Resource> resources, int top) {
 		for (int i = 0; i < documents.size() && i < top; i++) {
 			double maxScore = documents.get(i).getScore();
 			int index = i;

@@ -95,7 +95,7 @@ public class ResourceSelectionTests {
 
 	/**
 	 * Tests that all resources passed to
-	 * {@link ResourceSelection#select(java.util.List, java.util.List)}
+	 * {@link ResourceSelection#select(List<ScoredEntity<T>>, java.util.List)}
 	 * appear in the result of the method call.
 	 */
 	@Test
@@ -148,7 +148,7 @@ public class ResourceSelectionTests {
 	}
 	
 	/**
-	 * Tests that {@link ResourceSelection#select(java.util.List, java.util.List)}
+	 * Tests that {@link ResourceSelection#select(List<ScoredEntity<T>>, java.util.List)}
 	 * called with lists of different length
 	 * throws {@link IllegalArgumentException}.
 	 */
@@ -158,7 +158,7 @@ public class ResourceSelectionTests {
 	}
 
 	/**
-	 * Tests that {@link ResourceSelection#select(java.util.List, java.util.List)}
+	 * Tests that {@link ResourceSelection#select(List<ScoredEntity<T>>, java.util.List)}
 	 * called with a <code>null</code> list throws {@link NullPointerException}.
 	 */
 	@Test(expected=NullPointerException.class)

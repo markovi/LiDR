@@ -35,23 +35,23 @@ import ch.usi.inf.lidr.utils.ScoredEntity;
 public class CiSS extends AbstractResourceSelection {
 
 	/**
-	 * @see ch.usi.inf.lidr.selection.AbstractResourceSelection#getResourceScores(java.util.List, java.util.List)
+	 * @see ch.usi.inf.lidr.selection.AbstractResourceSelection#getResourceScores(List, java.util.List)
 	 */
 	@Override
-	protected Map<Resource, Double> getResourceScores(
-			List<ScoredEntity<Object>> documents, List<Resource> resources)
+	protected <T> Map<Resource, Double> getResourceScores(
+			List<ScoredEntity<T>> documents, List<Resource> resources)
 	{
 		Map<Resource, Double> resourceScores = new HashMap<Resource, Double>();
 		
 		int rankCutoff = sampleRankCutoff > 0 ? sampleRankCutoff :
 			getSampleRank(documents, resources, completeRankCutoff);
 		
-		List<ScoredEntity<Object>> cutDocuments = documents.subList(0, Math.min(documents.size(), rankCutoff));
+		List<ScoredEntity<T>> cutDocuments = documents.subList(0, Math.min(documents.size(), rankCutoff));
 		List<Resource> cutResources = resources.subList(0, Math.min(resources.size(), rankCutoff));
-		Map<Resource, List<ScoredEntity<Object>>> document2resource = getDocument2Resource(cutDocuments, cutResources);
+		Map<Resource, List<ScoredEntity<T>>> document2resource = getDocument2Resource(cutDocuments, cutResources);
 		
 		for (Resource resource : document2resource.keySet()) {
-			List<ScoredEntity<Object>> resourceDocuments = document2resource.get(resource);
+			List<ScoredEntity<T>> resourceDocuments = document2resource.get(resource);
 			resourceScores.put(resource, getResourceScore(resource, resourceDocuments));
 		}
 		
@@ -71,7 +71,7 @@ public class CiSS extends AbstractResourceSelection {
 	 * 
 	 * @return The score for a given <code>resource</code>.
 	 */
-	protected double getResourceScore(Resource resource, List<ScoredEntity<Object>> documents) {
+	protected <T> double getResourceScore(Resource resource, List<ScoredEntity<T>> documents) {
 		if (documents.size() == 0) return 0;
 		
 		double resourceScore = 0;

@@ -49,11 +49,11 @@ public class ReDDE extends AbstractResourceSelection {
 	protected int currentRankCutoff = -1;
 	
 	/**
-	 * @see ch.usi.inf.lidr.selection.AbstractResourceSelection#getResourceScores(java.util.List, java.util.List)
+	 * @see ch.usi.inf.lidr.selection.AbstractResourceSelection#getResourceScores(List, java.util.List)
 	 */
 	@Override
-	protected Map<Resource, Double> getResourceScores(
-			List<ScoredEntity<Object>> documents, List<Resource> resources)
+	protected <T> Map<Resource, Double> getResourceScores(
+			List<ScoredEntity<T>> documents, List<Resource> resources)
 	{
 		Map<Resource, Double> resourceScores = new HashMap<Resource, Double>();
 

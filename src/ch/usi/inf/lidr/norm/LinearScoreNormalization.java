@@ -60,18 +60,18 @@ public abstract class LinearScoreNormalization implements ScoreNormalization {
 	}
 
 	/**
-	 * @see ch.usi.inf.lidr.norm.ScoreNormalization#normalize(java.util.List)
+	 * @see ch.usi.inf.lidr.norm.ScoreNormalization#normalize(List<ScoredEntity<T>>)
 	 */
 	@Override
-	public List<ScoredEntity<Object>> normalize(List<ScoredEntity<Object>> unnormScoredDocs) {
+	public <T> List<ScoredEntity<T>> normalize(List<ScoredEntity<T>> unnormScoredDocs) {
 		if (unnormScoredDocs == null) {
 			throw new NullPointerException("The list of unnormalized document scores is null.");
 		}
 		
-		List<ScoredEntity<Object>> normScoredDocs;
+		List<ScoredEntity<T>> normScoredDocs;
 		
 		if (rankCutoff >= 0) {
-			List<ScoredEntity<Object>> truncScoredDocs = truncateScoredDocs(unnormScoredDocs, rankCutoff);
+			List<ScoredEntity<T>> truncScoredDocs = truncateScoredDocs(unnormScoredDocs, rankCutoff);
 			truncScoredDocs = addZeroScoredDocs(truncScoredDocs, rankCutoff);
 			normScoredDocs = doNormalization(truncScoredDocs);
 			normScoredDocs = removeZeroScoredDocs(normScoredDocs, unnormScoredDocs.size());
@@ -85,12 +85,12 @@ public abstract class LinearScoreNormalization implements ScoreNormalization {
 	/**
 	 * Truncates <code>scoredDocs</code> to the length of <code>rankCutoff</code>.
 	 */
-	private List<ScoredEntity<Object>> truncateScoredDocs(List<ScoredEntity<Object>> scoredDocs, int rankCutoff) {
+	private <T>  List<ScoredEntity<T>> truncateScoredDocs(List<ScoredEntity<T>> scoredDocs, int rankCutoff) {
 		if (rankCutoff >= scoredDocs.size()) {
 			return scoredDocs;
 		}
 		
-		List<ScoredEntity<Object>> truncScoredDocs = new ArrayList<ScoredEntity<Object>>(scoredDocs.size());
+		List<ScoredEntity<T>> truncScoredDocs = new ArrayList<ScoredEntity<T>>(scoredDocs.size());
 		truncScoredDocs.addAll(scoredDocs);
 		truncScoredDocs = truncScoredDocs.subList(0, rankCutoff);
 		
@@ -101,14 +101,15 @@ public abstract class LinearScoreNormalization implements ScoreNormalization {
 	 * If the length of <code>scoredDocs</code> is less than <code>rankCutoff</code>,
 	 * then the list is extended by adding zero-scored documents.
 	 */
-	private List<ScoredEntity<Object>> addZeroScoredDocs(List<ScoredEntity<Object>> scoredDocs, int rankCutoff) {
+	private <T> List<ScoredEntity<T>> addZeroScoredDocs(List<ScoredEntity<T>> scoredDocs, int rankCutoff) {
 		if (scoredDocs.size() >= rankCutoff) {
 			return scoredDocs;
 		}
 
-		ScoredEntity<Object> zeroDoc = new ScoredEntity<Object>("zero-scored_document", 0);
+		//TODO
+		ScoredEntity<T> zeroDoc = new ScoredEntity("zero-scored_document", 0);
 		
-		List<ScoredEntity<Object>> extendedScoredDocs = new  ArrayList<ScoredEntity<Object>>(rankCutoff);
+		List<ScoredEntity<T>> extendedScoredDocs = new  ArrayList<ScoredEntity<T>>(rankCutoff);
 		extendedScoredDocs.addAll(scoredDocs);
 		for (int i = scoredDocs.size(); i < rankCutoff; i++) {
 			extendedScoredDocs.add(zeroDoc);
@@ -120,7 +121,7 @@ public abstract class LinearScoreNormalization implements ScoreNormalization {
 	/**
 	 * Removes zero-scored documents from <code>scoredDocs</code> (if were added previously).
 	 */
-	private List<ScoredEntity<Object>> removeZeroScoredDocs(List<ScoredEntity<Object>> scoredDocs, int originalLength) {
+	private <T> List<ScoredEntity<T>> removeZeroScoredDocs(List<ScoredEntity<T>> scoredDocs, int originalLength) {
 		if (originalLength >= scoredDocs.size()) { 
 			return scoredDocs;
 		}
@@ -135,5 +136,5 @@ public abstract class LinearScoreNormalization implements ScoreNormalization {
 	 * 
 	 * @return The list of normalized document scores.
 	 */
-	protected abstract List<ScoredEntity<Object>> doNormalization(List<ScoredEntity<Object>> unnormScoredDocs);
+	protected abstract <T> List<ScoredEntity<T>> doNormalization(List<ScoredEntity<T>> unnormScoredDocs);
 }

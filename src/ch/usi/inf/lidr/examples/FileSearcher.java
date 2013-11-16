@@ -27,7 +27,7 @@ public final class FileSearcher {
 	/**
 	 * A mapping between queries and corresponding retrieval results.
 	 */
-	private final Map<String, List<ScoredEntity<Object>>> query2results = new HashMap<String, List<ScoredEntity<Object>>>(); 
+	private final Map<String, List<ScoredEntity<String>>> query2results = new HashMap<String, List<ScoredEntity<String>>>(); 
 
 	/**
 	 * Constructs a searcher using a given file with TREC-formatted results.
@@ -59,7 +59,7 @@ public final class FileSearcher {
 			BufferedReader reader = null;
 			try {
 				String baseQuery = "1";
-				List<ScoredEntity<Object>> retrievalResults = new ArrayList<ScoredEntity<Object>>(topN);
+				List<ScoredEntity<String>> retrievalResults = new ArrayList<ScoredEntity<String>>(topN);
 				int counter = 0;
 
 				reader = new BufferedReader(new FileReader(resultsFile));				
@@ -75,7 +75,7 @@ public final class FileSearcher {
 						query2results.put(baseQuery, retrievalResults);
 							
 						baseQuery = query;
-						retrievalResults = new ArrayList<ScoredEntity<Object>>(topN);
+						retrievalResults = new ArrayList<ScoredEntity<String>>(topN);
 						counter = 0;
 					}
 					
@@ -88,7 +88,7 @@ public final class FileSearcher {
 						// Skip one token
 						tokenizer.nextToken();
 						double score = Double.parseDouble(tokenizer.nextToken());
-						retrievalResults.add(new ScoredEntity<Object>(doc, score));
+						retrievalResults.add(new ScoredEntity<String>(doc, score));
 						counter++;
 					}
 				}
@@ -113,7 +113,7 @@ public final class FileSearcher {
 	 * @throws NullPointerException
 	 * 		if <code>queryId</code> is <code>null</code>.
 	 */
-	public List<ScoredEntity<Object>> search(String queryId) {
+	public List<ScoredEntity<String>> search(String queryId) {
 		if (queryId == null) {
 			throw new NullPointerException("The query id is null.");
 		}
@@ -122,7 +122,7 @@ public final class FileSearcher {
 			return query2results.get(queryId);
 		}
 		
-		return new ArrayList<ScoredEntity<Object>>();
+		return new ArrayList<ScoredEntity<String>>();
 	}
 	
 	/**
@@ -139,12 +139,12 @@ public final class FileSearcher {
 	 * @throws IllegalArgumentException
 	 * 		if <code>topN</code> is not positive.
 	 */
-	public List<ScoredEntity<Object>> search(String queryId, int topN) {
+	public List<ScoredEntity<String>> search(String queryId, int topN) {
 		if (topN <= 0) {
 			throw new IllegalArgumentException("The top-N is not positive: " + topN);
 		}
 		
-		List<ScoredEntity<Object>> result = search(queryId);
+		List<ScoredEntity<String>> result = search(queryId);
 		result =result.subList(0, Math.min(topN, result.size()));
 		return result;
 	}

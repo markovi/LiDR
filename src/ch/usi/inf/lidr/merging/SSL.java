@@ -99,11 +99,11 @@ public final class SSL implements ResultsMerging {
 	/**
 	 * <b>IMPORTANT:</b> {@link #setSampleDocuments(List)} must be called before running normalization.
 	 * 
-	 * @see ch.usi.inf.lidr.norm.ScoreNormalization#normalize(java.util.List)
+	 * @see ch.usi.inf.lidr.norm.ScoreNormalization#normalize(List<ScoredEntity<T>>)
 	 * @see #setSampleDocuments(List)
 	 */
 	@Override
-	public List<ScoredEntity<Object>> normalize(List<ScoredEntity<Object>> unnormScoredDocs) {
+	public <T> List<ScoredEntity<T>> normalize(List<ScoredEntity<T>> unnormScoredDocs) {
 		if (unnormScoredDocs == null) {
 			throw new NullPointerException("The list of scored documents is null.");
 		}
@@ -111,12 +111,12 @@ public final class SSL implements ResultsMerging {
 		SimpleRegression regression = getRegression(unnormScoredDocs);
 		//TODO: backup with CORI
 		if (regression.getN() < 3) {
-			return new ArrayList<ScoredEntity<Object>>();
+			return new ArrayList<ScoredEntity<T>>();
 		}
 		
-		List<ScoredEntity<Object>> normScoredDocs = new ArrayList<ScoredEntity<Object>>(unnormScoredDocs.size());
+		List<ScoredEntity<T>> normScoredDocs = new ArrayList<ScoredEntity<T>>(unnormScoredDocs.size());
 		for (int i = 0; i < unnormScoredDocs.size(); i++) {
-			ScoredEntity<Object> normScoredDoc = new ScoredEntity<Object>(unnormScoredDocs.get(i).getEntity(),
+			ScoredEntity<T> normScoredDoc = new ScoredEntity<T>(unnormScoredDocs.get(i).getEntity(),
 					regression.getSlope() * unnormScoredDocs.get(i).getScore() + regression.getIntercept());
 			normScoredDocs.add(normScoredDoc);
 		}
@@ -138,11 +138,11 @@ public final class SSL implements ResultsMerging {
 	 * 
 	 * @return The {@link SimpleRegression} with filled-in training data.
 	 */
-	private SimpleRegression getRegression(List<ScoredEntity<Object>> scoredDocs) {
+	private <T> SimpleRegression getRegression(List<ScoredEntity<T>> scoredDocs) {
 		SimpleRegression regression = new SimpleRegression();
 		
 		Set<Double> xData = new HashSet<Double>();
-		for (ScoredEntity<Object> scoredDocument : scoredDocs) {
+		for (ScoredEntity<T> scoredDocument : scoredDocs) {
 			Object docId = scoredDocument.getEntity();
 			double specificScore = scoredDocument.getScore();
 			

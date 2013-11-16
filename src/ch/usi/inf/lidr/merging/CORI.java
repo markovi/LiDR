@@ -34,7 +34,7 @@ public class CORI implements ResultsMerging {
 	 * <p>
 	 * <b>IMPORTANT:</b> for a list of document scores to be normalized,
 	 * the relevance must be set first using {@link #setResultListRelevance(double)}
-	 * and only then the normalization should be performed using {@link #normalize(List)}.
+	 * and only then the normalization should be performed using {@link #normalize(List<ScoredEntity<T>>)}.
 	 * If not set, the relevance <code>1</code> is used.
 	 * </p>
 	 * 
@@ -59,7 +59,7 @@ public class CORI implements ResultsMerging {
 	 * The relevance should be in the range <code>[0, 1]</code>.
 	 * 
 	 * <p>
-	 * <b>IMPORTANT:</b> this method should be called before {@link #normalize(List)}.
+	 * <b>IMPORTANT:</b> this method should be called before {@link #normalize(List<ScoredEntity<T>>)}.
 	 * If the relevance is not set, the value of <code>1</code> is used.
 	 * </p>
 	 * 
@@ -138,23 +138,23 @@ public class CORI implements ResultsMerging {
 	 * <b>IMPORTANT:</b> set the relevance of a result list to be normalized
 	 * by {@link #setResultListRelevance(double)} before running this method.
 	 * 
-	 * @see ch.usi.inf.lidr.norm.ScoreNormalization#normalize(java.util.List)
+	 * @see ch.usi.inf.lidr.norm.ScoreNormalization#normalize(List<ScoredEntity<T>>)
 	 */
 	@Override
-	public List<ScoredEntity<Object>> normalize(List<ScoredEntity<Object>> unnormScoredDocs) {
+	public <T> List<ScoredEntity<T>> normalize(List<ScoredEntity<T>> unnormScoredDocs) {
 		if (unnormScoredDocs == null) {
 			throw new NullPointerException("The list of scored documents is null.");
 		}
 		if (unnormScoredDocs.size() == 0) {
-			return new ArrayList<ScoredEntity<Object>>();
+			return new ArrayList<ScoredEntity<T>>();
 		}
 		
-		List<ScoredEntity<Object>> normScoredDocs = normalization.normalize(unnormScoredDocs);
-		List<ScoredEntity<Object>> weightedNormScoredDocs = new ArrayList<ScoredEntity<Object>>(unnormScoredDocs.size());
+		List<ScoredEntity<T>> normScoredDocs = normalization.normalize(unnormScoredDocs);
+		List<ScoredEntity<T>> weightedNormScoredDocs = new ArrayList<ScoredEntity<T>>(unnormScoredDocs.size());
 		
 		for (int i = 0; i < unnormScoredDocs.size(); i++) {
 			double score = getNormalizedScore(normScoredDocs.get(i).getScore(), resultListRelevance);
-			ScoredEntity<Object> normScoredDoc = new ScoredEntity<Object>(unnormScoredDocs.get(i).getEntity(), score);
+			ScoredEntity<T> normScoredDoc = new ScoredEntity<T>(unnormScoredDocs.get(i).getEntity(), score);
 			weightedNormScoredDocs.add(normScoredDoc);
 		}
 		

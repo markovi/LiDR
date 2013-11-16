@@ -17,10 +17,10 @@ import ch.usi.inf.lidr.utils.ScoredEntity;
 public final class Identity extends LinearScoreNormalization {
 
 	/**
-	 * @see ch.usi.inf.lidr.norm.LinearScoreNormalization#doNormalization(java.util.List)
+	 * @see ch.usi.inf.lidr.norm.LinearScoreNormalization#doNormalization(List<ScoredEntity<T>>)
 	 */
 	@Override
-	protected List<ScoredEntity<Object>> doNormalization(List<ScoredEntity<Object>> scoredDocs) {
+	protected <T>  List<ScoredEntity<T>> doNormalization(List<ScoredEntity<T>> scoredDocs) {
 		return scoredDocs;
 	}
 

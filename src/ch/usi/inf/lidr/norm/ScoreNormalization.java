@@ -9,6 +9,7 @@ import java.util.List;
 
 import ch.usi.inf.lidr.utils.ScoredEntity;
 
+
 /**
  * A score normalization algorithm.
  * Provides methods for normalizing a list of document scores. 
@@ -28,5 +29,5 @@ public interface ScoreNormalization {
 	 * 
 	 * @return The list of normalized document scores.
 	 */
-	List<ScoredEntity<Object>> normalize(List<ScoredEntity<Object>> unnormScoredDocs);
+	<T> List<ScoredEntity<T>> normalize(List<ScoredEntity<T>> unnormScoredDocs);
 }

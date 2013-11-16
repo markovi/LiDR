@@ -207,18 +207,18 @@ public final class SUSHI extends AbstractResourceSelection {
 	}
 
 	/**
-	 * @see ch.usi.inf.lidr.selection.AbstractResourceSelection#getResourceScores(java.util.List, java.util.List)
+	 * @see ch.usi.inf.lidr.selection.AbstractResourceSelection#getResourceScores(List, java.util.List)
 	 */
 	@Override
-	protected Map<Resource, Double> getResourceScores(
-			List<ScoredEntity<Object>> documents, List<Resource> resources)
+	protected <T> Map<Resource, Double> getResourceScores(
+			List<ScoredEntity<T>> documents, List<Resource> resources)
 	{
 		Map<Resource, Regression> resource2regression = getResource2Regression(documents, resources);
 
 		int currentRankCutoff = sampleRankCutoff > 0 ? sampleRankCutoff :
 			getSampleRank(documents, resources, completeRankCutoff);
 		
-		List<ScoredEntity<Object>> completeDocuments = new ArrayList<ScoredEntity<Object>>();
+		List<ScoredEntity<T>> completeDocuments = new ArrayList<ScoredEntity<T>>();
 		List<Resource> completeResources = new ArrayList<Resource>();
 		for (int i = 0; i < documents.size() && i < currentRankCutoff; i++) {
 			if (!resource2regression.containsKey(resources.get(i))) {
@@ -238,8 +238,8 @@ public final class SUSHI extends AbstractResourceSelection {
 	 * returns the best-fit regression between scores and ranks
 	 * of documents in that resource.
 	 */
-	private Map<Resource, Regression> getResource2Regression(
-			List<ScoredEntity<Object>> documents, List<Resource> resources)
+	private <T> Map<Resource, Regression> getResource2Regression(
+			List<ScoredEntity<T>> documents, List<Resource> resources)
 	{
 		Map<Resource, Regression[]> resource2regressions = new HashMap<Resource, Regression[]>();
 		
@@ -323,8 +323,8 @@ public final class SUSHI extends AbstractResourceSelection {
 	 * estimates the scores of the top-<i>L</i> documents,
 	 * where <code>L = rankThreshold</code>.
 	 */
-	private void getCompleteDocumentRanking(Map<Resource, Regression> resource2regression,
-			List<ScoredEntity<Object>> documents, List<Resource> resources)
+	private <T> void getCompleteDocumentRanking(Map<Resource, Regression> resource2regression,
+			List<ScoredEntity<T>> documents, List<Resource> resources)
 	{
 		if (resource2regression.size() == 0) {
 			return;
@@ -336,7 +336,7 @@ public final class SUSHI extends AbstractResourceSelection {
 			
 			for (int i = 1; i <= rankThreshold; i++) {
 				double score = regression.predict(i);
-				documents.add(new ScoredEntity<Object>(resource + "_" + i, score));
+				documents.add(new ScoredEntity(resource + "_" + i, score));
 				resources.add(resource);
 			}
 			
@@ -351,8 +351,8 @@ public final class SUSHI extends AbstractResourceSelection {
 	/**
 	 * Calculates resource scores based on the list of scored documents.
 	 */
-	private Map<Resource, Double> calculateResourceScores(
-			List<ScoredEntity<Object>> documents, List<Resource> resources)
+	private <T> Map<Resource, Double> calculateResourceScores(
+			List<ScoredEntity<T>> documents, List<Resource> resources)
 	{
 		Map<Resource, Double> resourceScores = new HashMap<Resource, Double>();
 		for (Resource resource : resources) {

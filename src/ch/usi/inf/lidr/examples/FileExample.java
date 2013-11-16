@@ -82,7 +82,7 @@ public final class FileExample {
 		
 		List<Resource> resources = getResources();
 		Map<Resource, FileSearcher> resourceSearchers = getResourceSearchers(resources, sourceSpecificResultsPath);
-		Map<Object, Resource> doc2resource = getDoc2Resource(doc2resourceFile, resources);
+		Map<String, Resource> doc2resource = getDoc2Resource(doc2resourceFile, resources);
 		
 		// Create and run the example
 		FileExample fileExample = new FileExample(selection, normalization);
@@ -139,10 +139,10 @@ public final class FileExample {
 	/**
 	 * Returns a mapping between CSI documents and their corresponding resources.
 	 */
-	private static Map<Object, Resource> getDoc2Resource(File doc2resourceFile,
+	private static Map<String, Resource> getDoc2Resource(File doc2resourceFile,
 			List<Resource> resources)
 	{
-		Map<Object, Resource> doc2resource = new HashMap<Object, Resource>();
+		Map<String, Resource> doc2resource = new HashMap<String, Resource>();
 		
 		try {
 			BufferedReader reader = null;
@@ -152,7 +152,7 @@ public final class FileExample {
 					String line = reader.readLine();
 					StringTokenizer tokenizer = new StringTokenizer(line);
 					
-					Object document = tokenizer.nextToken();
+					String document = tokenizer.nextToken();
 					String resourceId = tokenizer.nextToken();
 					
 					Resource resource = null;
@@ -207,21 +207,18 @@ public final class FileExample {
 
 	/**
 	 * Runs the example.
-	 * Returns the final results of a DIR system.
 	 * 
 	 * @param csiSearcher The CSI searcher.
 	 * @param resourceSearchers The mapping between resources and their corresponding searchers.
 	 * @param doc2resource The mapping between CSI documents and their corresponding resources.
 	 * 
-	 * @return The final results of a DIR system.
-	 * 
 	 * @throws NullPointerException
 	 * 		if <code>csiSearcher</code>, or <code>resourceSearchers</code>,
 	 * 		or <code>doc2resource</code> is <code>null</code>.
 	 */
-	public List<ScoredEntity<Object>> run(FileSearcher csiSearcher,
+	public void run(FileSearcher csiSearcher,
 			Map<Resource, FileSearcher> resourceSearchers,
-			Map<Object, Resource> doc2resource)
+			Map<String, Resource> doc2resource)
 	{
 		if (csiSearcher == null) {
 			throw new NullPointerException("The CSI searcher is null.");
@@ -230,26 +227,26 @@ public final class FileExample {
 			throw new NullPointerException("The mapping between documents and resources is null.");
 		}
 		
-		List<ScoredEntity<Object>> mergedResult = new ArrayList<ScoredEntity<Object>>();
-		
 		// Process queries (assumes that there are 5 queries with ids from 1 to 5)
 		for (int queryId = 1; queryId <= 5; queryId++) {
 			System.out.println("Processing query " + queryId);
+			List<ScoredEntity<String>> mergedResult = new ArrayList<ScoredEntity<String>>();
 			
 			// Obtain a CSI ranking of documents and a list of corresponding sources
-			List<ScoredEntity<Object>> csiDocs = csiSearcher.search(Integer.toString(queryId));
+			List<ScoredEntity<String>> csiDocs = csiSearcher.search(Integer.toString(queryId));
 			List<Resource> resources = getResources(csiDocs, doc2resource);
-			System.out.println(csiDocs);
-			System.out.println(resources);
+//			System.out.println(csiDocs);
+//			System.out.println(resources);
 			
 			// Run resource selection and normalize resource scores
 			List<ScoredEntity<Resource>> scoredResources = selection.select(csiDocs, resources);
 			List<ScoredEntity<Resource>> normResources = new MinMax().normalize(scoredResources);
+			System.out.println("\tResource ranking: " + normResources);
 			
 			for (ScoredEntity<Resource> normResource : normResources) {
 				// Retrieve source-specific results
 				FileSearcher resourceSearcher = resourceSearchers.get(normResource.getEntity());
-				List<ScoredEntity<Object>> resourceDocs = resourceSearcher.search(Integer.toString(queryId));
+				List<ScoredEntity<String>> resourceDocs = resourceSearcher.search(Integer.toString(queryId));
 				
 				// Run normalization:
 				// 1. Set the relevance of the result list.
@@ -257,26 +254,26 @@ public final class FileExample {
 				//          and is performed for the purpose of the example only.
 				((CORI) normalization).setResultListRelevance(normResource.getScore());
 				// 2. Normalize document scores
-				List<ScoredEntity<Object>> normDocs = normalization.normalize(resourceDocs);
+				List<ScoredEntity<String>> normDocs = normalization.normalize(resourceDocs);
 				// 3. Merge with already processed results
 				mergedResult = MergeSort.sort(mergedResult, normDocs);
 			}
+			
+			System.out.println("\tDocument ranking: " + mergedResult);
 		}
-		
-		return mergedResult;
 	}
 	
 	/**
 	 * For a given list of documents returns a list of their corresponding resources.
 	 */
-	private List<Resource> getResources(List<ScoredEntity<Object>> documents,
-			Map<Object, Resource> doc2resource)
+	private List<Resource> getResources(List<ScoredEntity<String>> documents,
+			Map<String, Resource> doc2resource)
 	{
 		List<Resource> resources = new ArrayList<Resource>(documents.size());
-		List<ScoredEntity<Object>> filteredDocs = new ArrayList<ScoredEntity<Object>>(documents.size());
+		List<ScoredEntity<String>> filteredDocs = new ArrayList<ScoredEntity<String>>(documents.size());
 		filteredDocs.addAll(documents);
 		
-		for (ScoredEntity<Object> document : documents) {
+		for (ScoredEntity<String> document : documents) {
 			Resource resource = doc2resource.get(document.getEntity());
 			if (resource == null) {
 				filteredDocs.remove(document);

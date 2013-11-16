@@ -50,6 +50,6 @@ public interface ResourceSelection {
 	 * 		if <code>documents</code> and <code>resources</code>
 	 * 		are of different size.
 	 */
-	List<ScoredEntity<Resource>> select(List<ScoredEntity<Object>> documents,
+	<T> List<ScoredEntity<Resource>> select(List<ScoredEntity<T>> documents,
 			List<Resource> resources);
 }

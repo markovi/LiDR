@@ -29,9 +29,9 @@ import ch.usi.inf.lidr.utils.ScoredEntity;
 public final class MinMax extends LinearScoreNormalization {
 
 	/**
-	 * @see ch.usi.inf.lidr.norm.LinearScoreNormalization#doNormalization(java.util.List)
+	 * @see ch.usi.inf.lidr.norm.LinearScoreNormalization#doNormalization(List<ScoredEntity<T>>)
 	 */
-	protected List<ScoredEntity<Object>> doNormalization(List<ScoredEntity<Object>> unnormScoredDocs) {
+	protected <T> List<ScoredEntity<T>> doNormalization(List<ScoredEntity<T>> unnormScoredDocs) {
 		double min = Double.MAX_VALUE;
 		double max = Double.MIN_VALUE;
 		
@@ -45,9 +45,9 @@ public final class MinMax extends LinearScoreNormalization {
 			norm = 1;
 		}
 
-		List<ScoredEntity<Object>> normScoredDocs = new ArrayList<ScoredEntity<Object>>(unnormScoredDocs.size());
+		List<ScoredEntity<T>> normScoredDocs = new ArrayList<ScoredEntity<T>>(unnormScoredDocs.size());
 		for (int i = 0; i < unnormScoredDocs.size(); i++) {
-			ScoredEntity<Object> normScoredDoc = new ScoredEntity<Object>(
+			ScoredEntity<T> normScoredDoc = new ScoredEntity<T>(
 					unnormScoredDocs.get(i).getEntity(),
 					(unnormScoredDocs.get(i).getScore() - min) / norm);
 			normScoredDocs.add(normScoredDoc);
