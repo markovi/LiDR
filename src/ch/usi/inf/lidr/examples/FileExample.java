@@ -235,8 +235,6 @@ public final class FileExample {
 			// Obtain a CSI ranking of documents and a list of corresponding sources
 			List<ScoredEntity<String>> csiDocs = csiSearcher.search(Integer.toString(queryId));
 			List<Resource> resources = getResources(csiDocs, doc2resource);
-//			System.out.println(csiDocs);
-//			System.out.println(resources);
 			
 			// Run resource selection and normalize resource scores
 			List<ScoredEntity<Resource>> scoredResources = selection.select(csiDocs, resources);
