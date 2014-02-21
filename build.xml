@@ -56,7 +56,8 @@
             version="true"
 			use="true"
 			classpathref="classpath"
-        	access="private">
+        	access="private"
+        	Windowtitle="LiDR - Library for Distributed Retrieval">
         	
         	<link href="http://docs.oracle.com/javase/6/docs/api/"/>
 			<link href="http://junit.sourceforge.net/javadoc/"/>
